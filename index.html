@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stupid Dumb Shit For Ste</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <style>
+        body {
+            background-color: black;
+            color: whitesmoke;
+        }
+        textarea {
+            width: 100%;
+            height: 800px;
+        }
+        .value-table-data {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <form action="#" id="steSuckForm">
+        <textarea name="steSuck" id="steSuck"></textarea>
+        <input type="submit">
+    </form>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <td>Item Name</td>
+                <td>Value</td>
+                <td>Action</td>
+            </tr>
+        </thead>
+        <tbody id="tableOutputRows">
+
+        </tbody>
+    </table>
+    <form action="#" id="addItemForm">
+        <label for="itemName">
+            Name
+            <input type="text" name="itemName" id="addItemName">
+        </label>
+        <label for="itemValue">
+            Value
+            <input type="text" name="itemValue" id="addItemValue">
+        </label>
+        <input type="submit">
+    </form>
+    <input type="button" value="Export" id="exportButton">
+    <p id="exportString"></p>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script>
+        const steSuckForm = document.getElementById('steSuckForm');
+        const exportString = document.getElementById('exportString');
+        const tableOutputRows = document.getElementById('tableOutputRows');
+        const exportButton = document.getElementById('exportButton');
+        const addItemForm = document.getElementById('addItemForm');
+        const addItemName = document.getElementById('addItemName');
+        const addItemValue = document.getElementById('addItemValue');
+        let table;
+
+        let steSuckArray;
+        let steSuckArrayMap;
+
+        let steSuckString;
+        steSuckForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            steSuckArray = [];
+            steSuckArrayMap = [];
+            steSuckArray = steSuck.value.split(',');
+            steSuckArrayMap = steSuckArray.map(element => {
+            const splitElement = element.split('<');
+                return {
+                    name: splitElement[0],
+                    value: splitElement[1] ? splitElement[1] : 0,
+                };
+            });
+            renderTable(); 
+        });
+
+        function renderTable() { 
+            if (table) {
+                table.destroy();
+            }
+
+            steSuckArrayMap.sort((a, b) => {
+                return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+            });
+
+            tableOutputRows.innerHTML = '';
+
+            steSuckArrayMap.forEach((item, index) => {
+                const tableRow = document.createElement('tr');
+                const tableDataName = document.createElement('td');
+                const tableDataValue = document.createElement('td');
+                const tableDataAction = document.createElement('td');
+
+                tableDataValue.classList.add('value-table-data')
+
+                tableRow.dataset.index = index;
+                tableRow.classList.add('tableBodyRow');
+
+                tableDataName.innerText = item.name;
+
+                const valueInput = document.createElement('input');
+                const valueInputText = document.createElement('span');
+                const valueInputSubmit = document.createElement('input');
+                const valueInputLabel = document.createElement('label');
+
+                valueInputSubmit.type = 'submit';
+                valueInputSubmit.value = 'Update';
+
+                valueInputText.id = 'valueText' + index;
+                valueInputText.innerText = item.value;
+                valueInput.value = item.value;
+                valueInput.dataset.index = index;
+                valueInput.id = 'valueInput' + index;
+                valueInputSubmit.onclick = (e) => {
+                    const value = document.getElementById('valueInput' + index).value;
+                    handleValueChange(value, index);
+                }
+                valueInputLabel.append(valueInput);
+                valueInputLabel.append(valueInputSubmit);
+                tableDataValue.append(valueInputText);
+                tableDataValue.append(valueInputLabel);
+
+                const actionInput = document.createElement('input');
+                actionInput.type = 'submit'
+                actionInput.value = "Remove";
+                actionInput.dataset.index = index;
+                actionInput.onclick = (e) => {
+                    handleRemove(e, index);
+                };
+                
+                tableDataAction.append(actionInput);
+
+                // Append all elements to table
+                tableRow.append(tableDataName);
+                tableRow.append(tableDataValue);
+                tableRow.append(tableDataAction);
+                tableOutputRows.append(tableRow);
+            })
+
+            table = new DataTable('#dataTable');
+        }
+
+        function handleRemove(e, index) {
+            steSuckArrayMap.splice(index, 1);
+            const row = e.target.parentElement.parentElement;
+            table.row(row).remove().draw();
+        }
+
+        function handleValueChange(value, index) {
+            steSuckArrayMap[index].value = value;
+            const textOuput = document.getElementById('valueText' + index);
+            console.log(textOuput);
+            textOuput.innerText = value;
+        }
+
+        exportButton.addEventListener('click', () => {
+            const exportStringBuilt = steSuckArrayMap.map(item => {
+                if (item.value) {
+                    return `${item.name}<${item.value}`;
+                } else {
+                    return item.name
+                }
+            })
+            exportString.innerText = exportStringBuilt.join(',');
+        })
+
+        addItemForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const item = {
+                name: addItemName.value,
+                value: addItemValue.value
+            }
+            steSuckArrayMap.push(item);
+            renderTable();
+        })
+        // fetchItemData();
+        // https://www.osrsbox.com/osrsbox-db/items-complete.json
+
+    </script>
+</body>
+</html>
