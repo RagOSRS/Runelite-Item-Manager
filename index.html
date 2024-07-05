@@ -49,7 +49,8 @@
         </label>
         <input type="submit">
     </form>
-    <input type="button" value="Export" id="exportButton">
+    <input type="button" value="Export Hide" id="exportButton">
+    <input type="button" value="Export Highlight" id="exportHighlightButton">
     <p id="exportString"></p>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
     <script>
@@ -57,6 +58,7 @@
         const exportString = document.getElementById('exportString');
         const tableOutputRows = document.getElementById('tableOutputRows');
         const exportButton = document.getElementById('exportButton');
+        const exportHighlightButton = document.getElementById('exportHighlightButton');
         const addItemForm = document.getElementById('addItemForm');
         const addItemName = document.getElementById('addItemName');
         const addItemValue = document.getElementById('addItemValue');
@@ -170,6 +172,17 @@
             })
             exportString.innerText = exportStringBuilt.join(',');
         })
+
+        exportHighlightButton.addEventListener('click', () => {
+            const exportStringBuilt = steSuckArrayMap.map(item => {
+                if (item.value) {
+                    return `${item.name}>${item.value}`;
+                } else {
+                    return item.name
+                }
+            })
+            exportString.innerText = exportStringBuilt.join(',');
+        });
 
         addItemForm.addEventListener('submit', (e) => {
             e.preventDefault();
